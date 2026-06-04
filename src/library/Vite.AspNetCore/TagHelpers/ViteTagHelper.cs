@@ -187,7 +187,7 @@ public class ViteTagHelper(
 
                 // Get the file path from the 'manifest.json' file
                 file = urlHelper.Content(
-                    $"~/{(string.IsNullOrEmpty(this.basePath) ? string.Empty : $"{this.basePath}/")}{cssFiles!.First()}"
+                    $"{(string.IsNullOrEmpty(this.basePath) ? string.Empty : $"{this.basePath}/")}{cssFiles!.First()}"
                 );
 
                 // If there are more of one css file, create clones of the element keeping all attributes
@@ -204,10 +204,26 @@ public class ViteTagHelper(
 
                     foreach (var cssFile in cssFiles)
                     {
+                        string filePath = "";
+
                         // Get the file path from the 'manifest.json' file
-                        var filePath = urlHelper.Content(
-                            $"~/{(string.IsNullOrEmpty(this.basePath) ? string.Empty : $"{this.basePath}/")}{cssFile}"
-                        );
+                        // If the base path is an absolute url, we need to build the file path differently so it doesn't break .net or the path
+                        if (this.basePath != null && Regex.IsMatch(this.basePath, @"^(https?:|//)"))
+                        {
+                            string scrubbedBasePath = this.basePath.TrimEnd('/');
+                            string scrubbedCssFile = cssFile.TrimStart('/');
+
+                            // Get the file path from the 'manifest.json' file
+                            filePath = urlHelper.Content(
+                                $"{scrubbedBasePath}/{scrubbedCssFile}"
+                            );
+                        }
+                        {
+                            
+                            filePath = urlHelper.Content(
+                                $"~/{(string.IsNullOrEmpty(this.basePath) ? string.Empty : $"{this.basePath}/")}{cssFile}"
+                            );
+                        }
 
                         var linkOutput = new TagHelperOutput(
                             "link",
@@ -225,11 +241,29 @@ public class ViteTagHelper(
             }
             else
             {
-                var entry = manifest[value]!;
+                //var entry = manifest.FirstOrDefault(x => x.Src != null && x.Src.Equals(value, StringComparison.OrdinalIgnoreCase));
                 // Get the real file path from the 'manifest.json' file
-                file = urlHelper.Content(
-                    $"~/{(string.IsNullOrEmpty(this.basePath) ? string.Empty : $"{this.basePath}/")}{entry.File}"
-                );
+
+                var entry = manifest[value]!;
+
+                // Get the file path from the 'manifest.json' file
+                // If the base path is an absolute url, we need to build the file path differently so it doesn't break .net or the path
+                if (this.basePath != null && Regex.IsMatch(this.basePath, @"^(https?:|//)"))
+                {
+                    string scrubbedBasePath = this.basePath.TrimEnd('/');
+                    string scrubbedFile = entry.File.TrimStart('/');
+
+                    // Get the file path from the 'manifest.json' file
+                    file = urlHelper.Content(
+                        $"{scrubbedBasePath}/{scrubbedFile}"
+                    );
+                }
+                else
+                {
+                    file = urlHelper.Content(
+                        $"~/{(string.IsNullOrEmpty(this.basePath) ? string.Empty : $"{this.basePath}/")}{entry.File}"
+                    );
+                }
             }
         }
 

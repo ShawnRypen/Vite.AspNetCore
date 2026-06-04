@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
@@ -62,11 +63,22 @@ public sealed class ViteManifest : IViteManifest, IDisposable
             return;
         }
 
-        // If the manifest file is in a subfolder, get the subfolder path.
-        this.basePath = this.viteOptions.Base?.TrimStart('/');
+        string rootDir = "";
 
-        // Get the manifest.json file path
-        string rootDir = Path.Combine(environment.WebRootPath, this.basePath ?? string.Empty);
+        // If Base is an absolute URL, it cannot be used as a subfolder path for the manifest.
+        if (this.viteOptions.Base != null && Regex.IsMatch(this.viteOptions.Base, @"^(https?:|//)"))
+        {
+            this.basePath = null;
+            rootDir = environment.WebRootPath;
+        }
+        else
+        {
+            // If the manifest file is in a subfolder, get the subfolder path.
+            this.basePath = this.viteOptions.Base?.TrimStart('/');
+            rootDir = Path.Combine(environment.WebRootPath, this.basePath ?? string.Empty);
+        }
+
+        
         this.fileProvider = new PhysicalFileProvider(rootDir);
         this.InitializeManifest();
     }
