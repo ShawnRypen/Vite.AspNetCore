@@ -2,7 +2,7 @@
 
 ## Note To Those that Find this
 
-This is a minor adaptation to [Vite.AspNetCore](https://github.com/Eptagone/Vite.AspNetCore) for [Rypen](https://www.rypen.com)
+This is a minor adaptation to [Vite.AspNetCore](https://github.com/Eptagone/Vite.AspNetCore) for [Rypen](https://www.rypen.com). It allows absolute pathing for the transpiled JS and CSS files (for example a CDN).
 
 This library offers integration with [ViteJS](https://vitejs.dev/) to be used in ASP.NET applications. It's made to work mainly with MPA (Multi-Page Application).
 
