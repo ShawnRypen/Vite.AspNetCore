@@ -1,5 +1,9 @@
 # Vite.AspNetCore
 
+## Note To Those that Find this
+
+This is a minor adaptation to [Vite.AspNetCore](https://github.com/Eptagone/Vite.AspNetCore) for [Rypen](https://www.rypen.com)
+
 This library offers integration with [ViteJS](https://vitejs.dev/) to be used in ASP.NET applications. It's made to work mainly with MPA (Multi-Page Application).
 
 The library is compatible with:
@@ -201,6 +205,38 @@ builder.Services.AddViteServices(options =>
 /// ...
 ```
 
+## Rypen Configuration Adaptation
+
+```CSharp
+// Program.cs
+using Vite.AspNetCore;
+
+// ...
+// Add the Vite services for development.
+if (Environment.IsDevelopment())
+{
+    services.AddViteServices(options =>
+    {
+        options.Server = new ViteDevServerOptions
+        {
+            Host = @"xxx.xxx.com",
+            Port = xxxx,
+            AutoRun = true,
+            Https = false,
+        };
+    });
+}
+//Add the Vite services for production with CDN base path that only affects rendered razor tags.
+else
+{
+    services.AddViteServices(options =>
+    {
+        options.Base = @"https://fullcdnaddress.com/sub/directory";
+    });
+}
+/// ...
+```
+
 If you prefer not to hardcode the options, you can use environment variables or user secrets. I suggest using `appsettings.json` and/or `appsettings.Development.json` files to share the default configuration with other developers. This information is not sensitive, so it's safe to share it.
 
 ```JSONC
@@ -240,7 +276,7 @@ There are more options that you can change. All the available options are listed
 | Property                  | Description                                                                                                          |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `Manifest`                | The manifest file name. Default is `.vite/manifest.json` (Vite 5) or `manifest.json` (Vite 4).                       |
-| `Base`                    | The subfolder where your assets will be located, including the manifest file, relative to the web root path.         |
+| `Base`                    | The subfolder where your assets will be located, ~~including the manifest file~~, relative to the web root path.         |
 | `Server:Port`             | The port where the Vite Development Server will be running according to your configuration. Default value is `5173`. |
 | `Server:Host`             | The host where the Vite Dev Server will be running according to your configuration. Default value is `localhost`.    |
 | `Server:TimeOut`          | The timeout in seconds spent waiting for the vite dev server. Default is `5`                                         |
